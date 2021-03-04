@@ -15,21 +15,22 @@ global r_2_i_1_initial;
 global d_initial;
 global days;
 global N;
-r_empty_initial = 1000 - 70;
-r_1_initial = 10;
-r_2_initial = 10;
-r_1_2_initial = 10;
-r_empty_i_1_initial = 10;
-r_empty_i_2_initial = 10;
-r_1_i_2_initial = 10;
-r_2_i_1_initial = 10;
+
+N = 10000;
+r_1_initial = 1;
+r_2_initial = 1;
+r_1_2_initial = 0;
+r_empty_i_1_initial = 0;
+r_empty_i_2_initial = 0;
+r_1_i_2_initial = 0;
+r_2_i_1_initial = 0;
 d_initial = 0;
+r_empty_initial = N - (r_1_initial + r_2_initial + r_1_2_initial + r_empty_i_1_initial + r_empty_i_2_initial + r_1_i_2_initial + r_2_i_1_initial + d_initial);
 
 % consts
 HOURS_PER_DAY = 24;
-days = 28;
+days = 10;
 initial_condition = [r_empty_initial; r_1_initial; r_2_initial; r_1_2_initial; r_empty_i_1_initial; r_empty_i_2_initial; r_1_i_2_initial; r_2_i_1_initial; d_initial;];
-N = r_empty_initial + r_1_initial + r_2_initial + r_1_2_initial + r_empty_i_1_initial + r_empty_i_2_initial + r_1_i_2_initial + r_2_i_1_initial + d_initial;
 
 % solve the ODEs
 % assume each step is an hour - very important
@@ -42,25 +43,31 @@ for i = 1:size(x)(1)
   endfor
 endfor
 
-% colors consts
-colors_letters = {"b", "g", "g", "g", "r", "r", "r", "r", "k"};
-
 % plot the results
 fig = figure();
-hold on;
-for i = 1:size(x)[2]
-  plot(t, x(:,i), "-");
-end
-hold off;
 
 % set plot info
-xlim ([0, HOURS_PER_DAY * days * 1.05]);
-ylim ([0, max(max(x)) * 1.05]);
-title ("Mutation Model Dynamics");
-xlabel ("Time [hours]");
-ylabel ("Normalized population size");
-h = legend ("R_{emptyset}", "R_{emptyset}I_1", "R_{emptyset}I_2", "R_1", "R_2", "R_1I_2", "R_2I_1", "R_{1,2}", "D");
-set (h, "interpreter", "tex");
+
+hold on;
+
+plot(t, x(:,1), "-b");
+plot(t, x(:,2), "-r");
+plot(t, x(:,3), "-.r");
+plot(t, x(:,4), "-g");
+plot(t, x(:,5), "-.g");
+plot(t, x(:,6), "--r");
+plot(t, x(:,7), "--.r");
+plot(t, x(:,8), "-g");
+plot(t, x(:,9), "-k");
+
+xlim([0, HOURS_PER_DAY * days * 1.05]);
+ylim([0, max(max(x)) * 1.05]);
+title("Mutation Model Dynamics");
+xlabel("Time [hours]");
+ylabel("Normalized population size");
+legend({"R_{0}", "R_{0}I_1", "R_{0}I_2", "R_1", "R_2", "R_1I_2", "R_2I_1", "R_{1,2}", "D"});
+
+hold off;
 
 # save figure for next runs 
 file_name = strcat(save_name ,".jpg");
@@ -76,18 +83,18 @@ function xdot = mutationSirModel(x, t)
 global N;
 
 # use parameters
-beta_empty_1 = 0.01;
-beta_empty_2 = 0.01;
-beta_1_2 = 0.1;
-beta_2_1 = 0.1;
-gama_empty_1 = 0.01;
-gama_empty_2 = 0.01;
-gama_1_2 = 0.01 ;
-gama_2_1 = 0.01 ;
-rho_empty_1 = 0.95;
-rho_empty_2 = 0.95;
-rho_1_2 = 0.75;
-rho_2_1 = 0.75;
+beta_empty_1 = 0.002;
+beta_empty_2 = 0.001;
+beta_1_2 = 0.001;
+beta_2_1 = 0.002;
+gama_empty_1 = 0.05;
+gama_empty_2 = 0.03;
+gama_1_2 = 0.000008 ;
+gama_2_1 = 0.00001 ;
+rho_empty_1 = 0.98;
+rho_empty_2 = 0.98;
+rho_1_2 = 0.90;
+rho_2_1 = 0.95;
 
 # model itself
 xdot(1) = -1 * ( beta_empty_1 * x(2) + beta_empty_2 * x(3) ) * x(1) ;
