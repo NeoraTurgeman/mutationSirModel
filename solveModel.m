@@ -55,9 +55,9 @@ plot(t, x(:,2), "-r");
 plot(t, x(:,3), "-.r");
 plot(t, x(:,4), "-g");
 plot(t, x(:,5), "-.g");
-plot(t, x(:,6), "--r");
-plot(t, x(:,7), "--.r");
-plot(t, x(:,8), "-g");
+plot(t, x(:,6), "-m");
+plot(t, x(:,7), "-.m");
+plot(t, x(:,8), "-c");
 plot(t, x(:,9), "-k");
 
 xlim([0, HOURS_PER_DAY * days * 1.05]);
