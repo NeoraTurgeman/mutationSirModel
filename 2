@@ -1,0 +1,126 @@
+
+function solveModelWithDelay()
+close all
+clear 
+global t;
+t=linspace(0,150,150);
+global n;       
+n= 1000000;
+lags=[20 10];
+
+   
+    beta_empty_1 = 0.0000003  ;
+	beta_empty_2 = 0.0000006;
+	beta_1_2 =     0.000000315  ;
+	gama_empty_1 = 0.1 ;
+	gama_empty_2 = 0.1 ;
+	gama_1_2 = 0.125  ;
+	rho_empty_1 = 0.70 ;
+	rho_empty_2 = 0.98 ;
+	rho_1_2 = 0.99 ;
+tspan=[0,150];
+%tspan = linspace(0,300,300);
+sol = dde23(@ddefun, lags, [n;100;100;1;1;1;1;200] , tspan);
+%yint;
+figure;
+plot(sol.x,sol.y,'-');
+xlabel('Time t');
+ylabel('Solution y');
+legend('R_0','R_0I_1','R_0I_2', 'R_1', 'R_2', 'R_1I_2', 'R_{1,2}', 'D', 'Location','NorthWest');
+max=size(sol.y,2);
+
+for i = 1:max-1
+
+if sol.y(1,i)<0
+    for j = i:max
+    sol.y(1,j)=0;
+    sol.y(2,j)=sol.y(2,j-1)-gama_empty_1*sol.y(2,j-1);
+    sol.y(3,j)=sol.y(3,j-1)-gama_empty_2*sol.y(3,j-1);
+  %  sol.y(4,j)=gama_empty_1*rho_empty_1*sol.y(2,j)-((beta_1_2 )*(sol.y(3,j)+sol.y(6,j-1))*sol.y(4,j-1));
+  %  sol.y(5,j)=gama_empty_2*rho_empty_2*sol.y(3,j);
+   % sol.y(6,j)=(beta_1_2)*( sol.y(3,j)+ sol.y(6,j-1))*sol.y(4,j)-gama_1_2*sol.y(6,j-1);
+  %  sol.y(7,j)=gama_1_2*rho_1_2* sol.y(6,j);
+    %sol.y(8,j)=gama_empty_1*(1-rho_empty_1)* sol.y(2,j)+gama_empty_2*(1-rho_empty_2)* sol.y(3,j)+gama_1_2*(1-rho_1_2)* sol.y(6,j);
+
+    end
+end
+if sol.y(5,i)>sol.y(5,i+1)
+    for j = i:max
+        sol.y(5,i+1)=sol.y(5,i);
+    end
+end
+if sol.y(2,i)<0
+    for j = i:max
+    sol.y(2,j)=0;
+    sol.y(4,j)=gama_empty_1*rho_empty_1*sol.y(2,j)-((beta_1_2 )*(sol.y(3,j)+sol.y(6,j-1))*sol.y(4,j-1));
+    sol.y(6,j)=(beta_1_2 )*( sol.y(3,j)+ sol.y(6,j-1))*sol.y(4,j)-gama_1_2*sol.y(6,j-1);
+    sol.y(7,j)=gama_1_2*rho_1_2* sol.y(6,j);
+    end
+end
+if sol.y(3,i)<0
+    s5=sol.y(5,i);
+    for j = i:max
+    sol.y(3,j)=0;
+    sol.y(4,j)=gama_empty_1*rho_empty_1*sol.y(2,j)-((beta_1_2 )*(sol.y(3,j)+sol.y(6,j-1))*sol.y(4,j-1));
+    sol.y(5,j)=s5;
+    sol.y(6,j)=(beta_1_2 )*( sol.y(3,j)+ sol.y(6,j-1))*sol.y(4,j)-gama_1_2*sol.y(6,j-1);
+    sol.y(7,j)=gama_1_2*rho_1_2* sol.y(6,j);
+    end
+end
+if sol.y(4,i)<0
+    
+    for j = i:max
+    sol.y(4,j)=0;
+    sol.y(6,j)=sol.y(6,j-1)-gama_1_2*sol.y(6,j-1);
+  %  sol.y(7,j)=gama_1_2*rho_1_2* sol.y(6,j);
+    end
+end
+if sol.y(6,i)<0 
+    sol.y(6,i)=0;
+    end
+    end
+end
+end
+
+%y=deval(sol,t);
+figure;
+plot(sol.x,sol.y,'-');
+xlabel('Time t');
+ylabel('Solution y');
+legend('R_0','R_0I_1','R_0I_2', 'R_1', 'R_2', 'R_1I_2', 'R_{1,2}', 'D', 'Location','NorthWest');
+
+end
+
+function dydt = ddefun(t,y,lags)
+global n;
+n= 1000000;
+    beta_empty_1 = 0.0000003  ;
+	beta_empty_2 = 0.0000006;
+	beta_1_2 =     0.000000315  ;
+	gama_empty_1 = 0.1 ;
+	gama_empty_2 = 0.1 ;
+	gama_1_2 = 0.125  ;
+	rho_empty_1 = 0.70 ;
+	rho_empty_2 = 0.98 ;
+	rho_1_2 = 0.99 ;
+
+    ylag1 = lags(:,1);
+    ylag2 = lags(:,2);
+
+  dydt = [%R0
+          -y(1)*(beta_empty_1)*y(2)-ylag1(1)*(beta_empty_2)*(ylag1(3)+ylag1(6));
+          %R0I1
+          (beta_empty_1)*y(2)*y(1)-gama_empty_1*y(2);
+          %R0I2
+          (beta_empty_2)*(ylag1(3)+ylag1(6))*ylag1(1)-(gama_empty_2*ylag1(3));
+          %R1
+          gama_empty_1*rho_empty_1*y(2)-((beta_1_2 )*(ylag1(3)+ylag1(6))*ylag1(4)); 
+          %R2
+          gama_empty_2*rho_empty_2*ylag1(3);
+          %R1I2
+          (beta_1_2)*(ylag1(3)+ylag1(6))*ylag1(4)-gama_1_2*ylag1(6);
+          %R12
+          gama_1_2*rho_1_2*ylag1(6);
+          %D
+          gama_empty_1*(1-rho_empty_1)*y(2)+gama_empty_2*(1-rho_empty_2)*ylag1(3)+gama_1_2*(1-rho_1_2)*ylag1(6);]
+end
